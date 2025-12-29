@@ -56,7 +56,7 @@ pub fn handle_text_editor_input(
                                 && buffer
                                     .chars()
                                     .nth(new_pos - 1)
-                                    .map_or(false, |c| c.is_whitespace())
+                                    .is_some_and(|c| c.is_whitespace())
                             {
                                 new_pos -= 1;
                             }
@@ -65,7 +65,7 @@ pub fn handle_text_editor_input(
                                 && buffer
                                     .chars()
                                     .nth(new_pos - 1)
-                                    .map_or(false, |c| !c.is_whitespace())
+                                    .is_some_and(|c| !c.is_whitespace())
                             {
                                 new_pos -= 1;
                             }
@@ -182,4 +182,3 @@ pub fn handle_text_editor_input(
         _ => false,
     }
 }
-

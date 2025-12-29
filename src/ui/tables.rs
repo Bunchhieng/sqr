@@ -29,13 +29,18 @@ pub fn render_tables(frame: &mut Frame, area: Rect, app: &App) {
 
     let (border_style, title_style) = if app.state.focus == Focus::Tables {
         (
-            Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD),
+            Style::default()
+                .fg(Color::Yellow)
+                .add_modifier(Modifier::BOLD),
             Style::default()
                 .fg(Color::Yellow)
                 .add_modifier(Modifier::BOLD | Modifier::UNDERLINED),
         )
     } else {
-        (Style::default().fg(Color::Gray), Style::default().fg(Color::Gray))
+        (
+            Style::default().fg(Color::Gray),
+            Style::default().fg(Color::Gray),
+        )
     };
 
     let block = Block::default()
@@ -62,11 +67,10 @@ pub fn render_tables(frame: &mut Frame, area: Rect, app: &App) {
     // Show filter if active
     if !app.state.table_filter.is_empty() {
         let filter_text = format!("Filter: {}", app.state.table_filter);
-        let filter_line = Line::from(Span::styled(
-            filter_text,
-            Style::default().fg(Color::Cyan),
-        ));
-        frame.render_widget(filter_line, Rect::new(area.x, area.y + area.height - 1, area.width, 1));
+        let filter_line = Line::from(Span::styled(filter_text, Style::default().fg(Color::Cyan)));
+        frame.render_widget(
+            filter_line,
+            Rect::new(area.x, area.y + area.height - 1, area.width, 1),
+        );
     }
 }
-

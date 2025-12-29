@@ -65,6 +65,7 @@ pub struct QueryResult {
 }
 
 impl QueryResult {
+    #[allow(dead_code)]
     pub fn new(columns: Vec<String>, rows: Vec<Vec<Value>>, exec_ms: u64) -> Self {
         Self {
             columns,
@@ -74,9 +75,9 @@ impl QueryResult {
         }
     }
 
+    #[allow(dead_code)]
     pub fn with_truncation(mut self, truncated: bool) -> Self {
         self.truncated = truncated;
         self
     }
 }
-

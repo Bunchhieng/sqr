@@ -40,4 +40,3 @@ pub struct ForeignKeyInfo {
     pub on_update: Option<String>,
     pub on_delete: Option<String>,
 }
-

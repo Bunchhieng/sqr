@@ -65,4 +65,3 @@ pub fn render_sql_editor(frame: &mut Frame, area: Rect, app: &App) {
         frame.render_widget(empty, chunks[1]);
     }
 }
-

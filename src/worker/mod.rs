@@ -1,15 +1,18 @@
 use crate::db;
-use crate::types::{ColumnInfo, DiagramData, DiagramTable, ForeignKeyInfo, IndexInfo, QueryResult, TableInfo};
+use crate::types::{
+    ColumnInfo, DiagramData, DiagramTable, ForeignKeyInfo, IndexInfo, QueryResult, TableInfo,
+};
 use anyhow::Result;
 use rusqlite::Connection;
 use std::sync::mpsc;
 use std::thread;
 
-
 /// Messages sent to the worker thread
 #[derive(Debug)]
 pub enum WorkerMessage {
-    LoadTables { include_internal: bool },
+    LoadTables {
+        include_internal: bool,
+    },
     LoadTableRows {
         table_name: String,
         limit: usize,
@@ -19,8 +22,12 @@ pub enum WorkerMessage {
         query: String,
         max_rows: Option<usize>,
     },
-    GetTableInfo { table_name: String },
-    LoadSchema { table_name: String },
+    GetTableInfo {
+        table_name: String,
+    },
+    LoadSchema {
+        table_name: String,
+    },
     LoadDiagram,
     UpdateCell {
         table_name: String,
@@ -34,17 +41,29 @@ pub enum WorkerMessage {
 /// Responses sent back from the worker thread
 #[derive(Debug)]
 pub enum WorkerResponse {
-    TablesLoaded { tables: Vec<TableInfo> },
-    TableRowsLoaded { result: QueryResult },
-    QueryExecuted { result: QueryResult },
-    TableInfoLoaded { info: TableInfo },
+    TablesLoaded {
+        tables: Vec<TableInfo>,
+    },
+    TableRowsLoaded {
+        result: QueryResult,
+    },
+    QueryExecuted {
+        result: QueryResult,
+    },
+    TableInfoLoaded {
+        info: TableInfo,
+    },
     SchemaLoaded {
         columns: Vec<ColumnInfo>,
         indexes: Vec<IndexInfo>,
         foreign_keys: Vec<ForeignKeyInfo>,
     },
-    DiagramLoaded { data: DiagramData },
-    Error { message: String },
+    DiagramLoaded {
+        data: DiagramData,
+    },
+    Error {
+        message: String,
+    },
     CellUpdated,
 }
 
@@ -84,7 +103,8 @@ impl Worker {
                     }) => {
                         match db::query::get_table_rows(&connection, &table_name, limit, offset) {
                             Ok(result) => {
-                                let _ = response_tx.send(WorkerResponse::TableRowsLoaded { result });
+                                let _ =
+                                    response_tx.send(WorkerResponse::TableRowsLoaded { result });
                             }
                             Err(e) => {
                                 let _ = response_tx.send(WorkerResponse::Error {
@@ -178,7 +198,13 @@ impl Worker {
                         column_name,
                         new_value,
                     }) => {
-                        match db::update_cell(&connection, &table_name, row_index, &column_name, &new_value) {
+                        match db::update_cell(
+                            &connection,
+                            &table_name,
+                            row_index,
+                            &column_name,
+                            &new_value,
+                        ) {
                             Ok(_) => {
                                 let _ = response_tx.send(WorkerResponse::CellUpdated);
                             }
@@ -225,6 +251,7 @@ impl Worker {
     }
 
     /// Receive a response (blocking)
+    #[allow(dead_code)]
     pub fn recv(&self) -> Result<WorkerResponse> {
         self.receiver
             .recv()
@@ -234,8 +261,9 @@ impl Worker {
     /// Shutdown the worker thread
     pub fn shutdown(self) -> Result<()> {
         self.sender.send(WorkerMessage::Shutdown)?;
-        self.handle.join().map_err(|_| anyhow::anyhow!("Worker thread panicked"))?;
+        self.handle
+            .join()
+            .map_err(|_| anyhow::anyhow!("Worker thread panicked"))?;
         Ok(())
     }
 }
-

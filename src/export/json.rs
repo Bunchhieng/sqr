@@ -46,12 +46,10 @@ pub fn export_json(conn: &Connection, output_path: &Path, sql_query: &str) -> Re
     }
 
     // Write as JSON array
-    let output = serde_json::to_string_pretty(&rows)
-        .context("Failed to serialize JSON")?;
+    let output = serde_json::to_string_pretty(&rows).context("Failed to serialize JSON")?;
     file.write_all(output.as_bytes())
         .context("Failed to write JSON file")?;
     file.flush().context("Failed to flush file")?;
 
     Ok(())
 }
-

@@ -48,4 +48,3 @@ pub fn export_csv(conn: &Connection, output_path: &Path, sql_query: &str) -> Res
     writer.flush().context("Failed to flush CSV writer")?;
     Ok(())
 }
-

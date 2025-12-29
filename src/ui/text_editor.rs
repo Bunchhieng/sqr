@@ -26,7 +26,7 @@ pub fn render_text_editor_area(
     border_style: Style,
 ) {
     let pos = cursor_pos.min(text.chars().count());
-    
+
     // Build display text with visible cursor indicator
     let display_text = if text.is_empty() {
         placeholder.to_string()
@@ -56,10 +56,9 @@ pub fn render_text_editor_area(
 
     // Create styled text with cursor highlighted
     let mut styled_lines = Vec::new();
-    for (line_idx, line_text) in display_text.lines().enumerate() {
+    for line_text in display_text.lines() {
         let mut spans = Vec::new();
-        let mut in_cursor = false;
-        
+
         for ch in line_text.chars() {
             if ch == '█' {
                 // Cursor character - highlight it
@@ -70,7 +69,6 @@ pub fn render_text_editor_area(
                         .bg(Color::Yellow)
                         .add_modifier(Modifier::BOLD),
                 ));
-                in_cursor = true;
             } else {
                 // Regular character
                 let style = if text.is_empty() {
@@ -83,7 +81,7 @@ pub fn render_text_editor_area(
         }
         styled_lines.push(Line::from(spans));
     }
-    
+
     // If text is empty, show placeholder
     if styled_lines.is_empty() {
         styled_lines.push(Line::from(Span::styled(
@@ -93,7 +91,12 @@ pub fn render_text_editor_area(
     }
 
     let editor = Paragraph::new(styled_lines)
-        .block(Block::default().title(cursor_info).borders(Borders::ALL).border_style(border_style))
+        .block(
+            Block::default()
+                .title(cursor_info)
+                .borders(Borders::ALL)
+                .border_style(border_style),
+        )
         .wrap(Wrap { trim: true });
 
     frame.render_widget(editor, area);
@@ -124,4 +127,3 @@ pub fn render_editor_panel(
         .split(inner)
         .to_vec()
 }
-

@@ -48,4 +48,3 @@ fn export_query(
         ExportFormat::Json => export_json(conn, output_path, query),
     }
 }
-

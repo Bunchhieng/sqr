@@ -13,12 +13,12 @@ fn format_sql_schema(sql: &str) -> String {
     let mut formatted = String::new();
     let mut indent = 0;
     let indent_size = 2;
-    
+
     let mut chars = sql.chars().peekable();
     let mut in_string = false;
     let mut string_char = '\0';
     let mut in_comment = false;
-    
+
     while let Some(ch) = chars.next() {
         match ch {
             '\'' | '"' if !in_comment => {
@@ -71,7 +71,7 @@ fn format_sql_schema(sql: &str) -> String {
             }
         }
     }
-    
+
     formatted
 }
 
@@ -81,19 +81,42 @@ fn format_sql_line(line: &str) -> Line<'static> {
     let mut current_word = String::new();
     let mut in_string = false;
     let mut string_char = '\0';
-    
+
     // SQL keywords to highlight
     let keywords = [
-        "CREATE", "TABLE", "IF", "NOT", "EXISTS", "PRIMARY", "KEY",
-        "FOREIGN", "REFERENCES", "UNIQUE", "CHECK", "DEFAULT",
-        "NULL", "INTEGER", "TEXT", "REAL", "BLOB", "AUTOINCREMENT",
-        "CONSTRAINT", "INDEX", "ON", "DELETE", "UPDATE", "CASCADE",
-        "SET", "RESTRICT", "NO", "ACTION",
+        "CREATE",
+        "TABLE",
+        "IF",
+        "NOT",
+        "EXISTS",
+        "PRIMARY",
+        "KEY",
+        "FOREIGN",
+        "REFERENCES",
+        "UNIQUE",
+        "CHECK",
+        "DEFAULT",
+        "NULL",
+        "INTEGER",
+        "TEXT",
+        "REAL",
+        "BLOB",
+        "AUTOINCREMENT",
+        "CONSTRAINT",
+        "INDEX",
+        "ON",
+        "DELETE",
+        "UPDATE",
+        "CASCADE",
+        "SET",
+        "RESTRICT",
+        "NO",
+        "ACTION",
     ];
-    
-    let mut chars = line.chars().peekable();
-    
-    while let Some(ch) = chars.next() {
+
+    let chars = line.chars().peekable();
+
+    for ch in chars {
         match ch {
             '\'' | '"' => {
                 if !in_string {
@@ -143,12 +166,12 @@ fn format_sql_line(line: &str) -> Line<'static> {
             }
         }
     }
-    
+
     // Push remaining word
     if !current_word.is_empty() {
         spans.push(format_word_span(&current_word, &keywords));
     }
-    
+
     if spans.is_empty() {
         Line::from("")
     } else {
@@ -174,13 +197,18 @@ fn format_word_span(word: &str, keywords: &[&str]) -> Span<'static> {
 pub fn render_info(frame: &mut Frame, area: Rect, app: &App) {
     let (border_style, title_style) = if app.state.focus == Focus::Info {
         (
-            Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD),
+            Style::default()
+                .fg(Color::Yellow)
+                .add_modifier(Modifier::BOLD),
             Style::default()
                 .fg(Color::Yellow)
                 .add_modifier(Modifier::BOLD | Modifier::UNDERLINED),
         )
     } else {
-        (Style::default().fg(Color::Gray), Style::default().fg(Color::Gray))
+        (
+            Style::default().fg(Color::Gray),
+            Style::default().fg(Color::Gray),
+        )
     };
 
     let block = Block::default()
@@ -203,16 +231,20 @@ pub fn render_info(frame: &mut Frame, area: Rect, app: &App) {
         };
         lines.push(Line::from(Span::styled(
             table_header,
-            Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD),
+            Style::default()
+                .fg(Color::Cyan)
+                .add_modifier(Modifier::BOLD),
         )));
 
         if let Some(sql) = &table_info.sql {
             lines.push(Line::from(""));
             lines.push(Line::from(Span::styled(
                 "Schema:",
-                Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD),
+                Style::default()
+                    .fg(Color::Yellow)
+                    .add_modifier(Modifier::BOLD),
             )));
-            
+
             // Show only first few lines of schema to save space
             // Beautify SQL schema with syntax highlighting
             let formatted_sql = format_sql_schema(sql);
@@ -220,12 +252,12 @@ pub fn render_info(frame: &mut Frame, area: Rect, app: &App) {
             let sql_lines: Vec<String> = formatted_sql.lines().map(|s| s.to_string()).collect();
             let max_schema_lines = 8; // Limit schema display
             let lines_to_show = sql_lines.len().min(max_schema_lines);
-            
+
             for line in sql_lines.iter().take(lines_to_show) {
                 let styled_line = format_sql_line(line);
                 lines.push(styled_line);
             }
-            
+
             // Show truncation indicator if schema is longer
             if sql_lines.len() > max_schema_lines {
                 lines.push(Line::from(Span::styled(
@@ -244,9 +276,11 @@ pub fn render_info(frame: &mut Frame, area: Rect, app: &App) {
     lines.push(Line::from(""));
     lines.push(Line::from(Span::styled(
         "Shortcuts:",
-        Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD),
+        Style::default()
+            .fg(Color::Yellow)
+            .add_modifier(Modifier::BOLD),
     )));
-    
+
     // Navigation
     lines.push(Line::from(vec![
         Span::styled("Tab", Style::default().fg(Color::Cyan)),
@@ -256,7 +290,7 @@ pub fn render_info(frame: &mut Frame, area: Rect, app: &App) {
         Span::styled("Left/Right", Style::default().fg(Color::Cyan)),
         Span::raw(": pages"),
     ]));
-    
+
     // View modes
     lines.push(Line::from(vec![
         Span::styled("s", Style::default().fg(Color::Cyan)),
@@ -272,13 +306,15 @@ pub fn render_info(frame: &mut Frame, area: Rect, app: &App) {
         Span::styled("q", Style::default().fg(Color::Cyan)),
         Span::raw(": quit"),
     ]));
-    
+
     // Editing shortcuts
     if app.state.edit_mode {
         lines.push(Line::from(""));
         lines.push(Line::from(Span::styled(
             "Edit Mode:",
-            Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD),
+            Style::default()
+                .fg(Color::Yellow)
+                .add_modifier(Modifier::BOLD),
         )));
         if app.state.full_edit_mode {
             lines.push(Line::from(vec![
@@ -318,13 +354,15 @@ pub fn render_info(frame: &mut Frame, area: Rect, app: &App) {
             ]));
         }
     }
-    
+
     // SQL editor shortcuts (only show if SQL editor is open)
     if app.state.show_sql_editor {
         lines.push(Line::from(""));
         lines.push(Line::from(Span::styled(
             "SQL Editor:",
-            Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD),
+            Style::default()
+                .fg(Color::Yellow)
+                .add_modifier(Modifier::BOLD),
         )));
         lines.push(Line::from(vec![
             Span::styled("Enter", Style::default().fg(Color::Cyan)),
@@ -358,4 +396,3 @@ pub fn render_info(frame: &mut Frame, area: Rect, app: &App) {
 
     frame.render_widget(para, inner);
 }
-

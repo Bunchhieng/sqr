@@ -11,13 +11,18 @@ use ratatui::{
 pub fn render_content(frame: &mut Frame, area: Rect, app: &App) {
     let (border_style, title_style) = if app.state.focus == Focus::Content {
         (
-            Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD),
+            Style::default()
+                .fg(Color::Yellow)
+                .add_modifier(Modifier::BOLD),
             Style::default()
                 .fg(Color::Yellow)
                 .add_modifier(Modifier::BOLD | Modifier::UNDERLINED),
         )
     } else {
-        (Style::default().fg(Color::Gray), Style::default().fg(Color::Gray))
+        (
+            Style::default().fg(Color::Gray),
+            Style::default().fg(Color::Gray),
+        )
     };
 
     let title = match app.state.view_mode {
@@ -64,7 +69,7 @@ fn render_rows(frame: &mut Frame, area: Rect, app: &App, block: Block) {
 
         // Calculate column widths (equal distribution)
         let col_count = result.columns.len().max(1);
-        
+
         // Build table rows
         let header: Vec<Cell> = result
             .columns
@@ -80,7 +85,7 @@ fn render_rows(frame: &mut Frame, area: Rect, app: &App, block: Block) {
 
         // Calculate max width per column (accounting for spacing)
         let max_width = (inner.width as usize / col_count).saturating_sub(2).min(50);
-        
+
         let rows: Vec<Row> = result
             .rows
             .iter()
@@ -93,7 +98,7 @@ fn render_rows(frame: &mut Frame, area: Rect, app: &App, block: Block) {
                         let is_editing = app.state.edit_mode
                             && app.state.editing_row == Some(row_idx)
                             && app.state.editing_col == Some(col_idx);
-                        
+
                         let display = if is_editing {
                             // Show edit buffer
                             if app.state.edit_buffer.is_empty() {
@@ -110,7 +115,7 @@ fn render_rows(frame: &mut Frame, area: Rect, app: &App, block: Block) {
                         } else {
                             val.display(max_width)
                         };
-                        
+
                         let mut cell = Cell::from(display);
                         if is_editing {
                             // Highlight editing cell
@@ -131,9 +136,12 @@ fn render_rows(frame: &mut Frame, area: Rect, app: &App, block: Block) {
             .map(|_| Constraint::Percentage((100 / col_count as u16).max(1)))
             .collect();
 
-        let header_row = Row::new(header)
-            .style(Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD));
-        
+        let header_row = Row::new(header).style(
+            Style::default()
+                .fg(Color::Cyan)
+                .add_modifier(Modifier::BOLD),
+        );
+
         let table = Table::new(rows, widths.as_slice())
             .header(header_row)
             .block(Block::default())
@@ -148,10 +156,7 @@ fn render_rows(frame: &mut Frame, area: Rect, app: &App, block: Block) {
             if app.state.full_edit_mode {
                 "FULL EDIT MODE - Press Enter to save, Shift+Enter for newline, Esc to exit full editor".to_string()
             } else if let Some(error) = &app.state.query_error {
-                format!(
-                    "ERROR: {} | Esc: Cancel | Ctrl+E: Full editor",
-                    error
-                )
+                format!("ERROR: {} | Esc: Cancel | Ctrl+E: Full editor", error)
             } else {
                 format!(
                     "EDIT MODE - Row {}, Col {} | Enter: Save | Esc: Cancel | Ctrl+E: Full editor",
@@ -160,7 +165,9 @@ fn render_rows(frame: &mut Frame, area: Rect, app: &App, block: Block) {
                 )
             }
         } else {
-            let total_rows = app.state.table_info
+            let total_rows = app
+                .state
+                .table_info
                 .as_ref()
                 .and_then(|ti| ti.row_count)
                 .map(|r| format!(" of {}", r))
@@ -263,11 +270,7 @@ fn render_schema(frame: &mut Frame, area: Rect, app: &App, block: Block) {
                     .add_modifier(Modifier::BOLD),
             )));
             for idx in &app.state.schema_indexes {
-                let idx_text = format!(
-                    "  {} ({})",
-                    idx.name,
-                    idx.columns.join(", ")
-                );
+                let idx_text = format!("  {} ({})", idx.name, idx.columns.join(", "));
                 lines.push(Line::from(Span::styled(
                     idx_text,
                     Style::default().fg(Color::White),
@@ -285,10 +288,7 @@ fn render_schema(frame: &mut Frame, area: Rect, app: &App, block: Block) {
                     .add_modifier(Modifier::BOLD),
             )));
             for fk in &app.state.schema_foreign_keys {
-                let fk_text = format!(
-                    "  {} -> {}.{}",
-                    fk.from_column, fk.to_table, fk.to_column
-                );
+                let fk_text = format!("  {} -> {}.{}", fk.from_column, fk.to_table, fk.to_column);
                 lines.push(Line::from(Span::styled(
                     fk_text,
                     Style::default().fg(Color::White),
@@ -341,7 +341,7 @@ fn render_query_results(frame: &mut Frame, area: Rect, app: &App, block: Block) 
 
         // Calculate column widths (equal distribution)
         let col_count = result.columns.len().max(1);
-        
+
         // Build table rows
         let header: Vec<Cell> = result
             .columns
@@ -357,7 +357,7 @@ fn render_query_results(frame: &mut Frame, area: Rect, app: &App, block: Block) 
 
         // Calculate max width per column (accounting for spacing)
         let max_width = (inner.width as usize / col_count).saturating_sub(2).min(50);
-        
+
         let rows: Vec<Row> = result
             .rows
             .iter()
@@ -403,4 +403,3 @@ fn render_query_results(frame: &mut Frame, area: Rect, app: &App, block: Block) 
         frame.render_widget(empty, inner);
     }
 }
-

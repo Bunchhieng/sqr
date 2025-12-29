@@ -15,10 +15,7 @@ use crossterm::{
 };
 use db::Database;
 use export::{export, ExportFormat};
-use ratatui::{
-    backend::CrosstermBackend,
-    Terminal,
-};
+use ratatui::{backend::CrosstermBackend, Terminal};
 use std::io;
 
 #[derive(Parser)]
@@ -196,4 +193,3 @@ fn run_tui(db_path: &str, read_write: bool, page_size: usize) -> Result<()> {
 
     Ok(())
 }
-

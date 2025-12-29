@@ -2,12 +2,10 @@ use crate::types::{ColumnInfo, ForeignKeyInfo, IndexInfo, TableInfo};
 use anyhow::Result;
 use rusqlite::Connection;
 
-
 /// Get all tables in the database
 pub fn get_tables(conn: &Connection, include_internal: bool) -> Result<Vec<TableInfo>> {
-    let mut stmt = conn.prepare(
-        "SELECT name, sql FROM sqlite_master WHERE type = 'table' ORDER BY name",
-    )?;
+    let mut stmt =
+        conn.prepare("SELECT name, sql FROM sqlite_master WHERE type = 'table' ORDER BY name")?;
 
     let tables: Result<Vec<TableInfo>, anyhow::Error> = stmt
         .query_map([], |row| {
@@ -17,7 +15,7 @@ pub fn get_tables(conn: &Connection, include_internal: bool) -> Result<Vec<Table
                 sql: row.get(1)?,
             })
         })?
-        .map(|r| r.map_err(|e| anyhow::Error::from(e)))
+        .map(|r| r.map_err(anyhow::Error::from))
         .collect();
 
     let mut tables = tables?;
@@ -39,7 +37,10 @@ pub fn get_tables(conn: &Connection, include_internal: bool) -> Result<Vec<Table
 /// Get row count for a table
 fn get_table_row_count(conn: &Connection, table_name: &str) -> Result<u64> {
     // Use a safe query with parameter binding
-    let query = format!("SELECT COUNT(*) FROM \"{}\"", table_name.replace('"', "\"\""));
+    let query = format!(
+        "SELECT COUNT(*) FROM \"{}\"",
+        table_name.replace('"', "\"\"")
+    );
     let count: i64 = conn.query_row(&query, [], |row| row.get(0))?;
     Ok(count as u64)
 }
@@ -64,7 +65,10 @@ pub fn get_table_info(conn: &Connection, table_name: &str) -> Result<TableInfo> 
 /// Get columns for a table
 pub fn get_columns(conn: &Connection, table_name: &str) -> Result<Vec<ColumnInfo>> {
     // Use PRAGMA table_info for reliable column information
-    let mut stmt = conn.prepare(&format!("PRAGMA table_info(\"{}\")", table_name.replace('"', "\"\"")))?;
+    let mut stmt = conn.prepare(&format!(
+        "PRAGMA table_info(\"{}\")",
+        table_name.replace('"', "\"\"")
+    ))?;
 
     let columns: Result<Vec<_>> = stmt
         .query_map([], |row| {
@@ -99,7 +103,7 @@ pub fn get_columns(conn: &Connection, table_name: &str) -> Result<Vec<ColumnInfo
                 auto_increment,
             })
         })?
-        .map(|r| r.map_err(|e| anyhow::Error::from(e)))
+        .map(|r| r.map_err(anyhow::Error::from))
         .collect();
 
     columns
@@ -128,7 +132,7 @@ pub fn get_indexes(conn: &Connection, table_name: &str) -> Result<Vec<IndexInfo>
                     let col_name: String = row.get(1)?;
                     Ok(col_name)
                 })?
-                .map(|r| r.map_err(|e| anyhow::Error::from(e)))
+                .map(|r| r.map_err(anyhow::Error::from))
                 .collect();
 
             let columns_result = columns.unwrap_or_default();
@@ -140,7 +144,7 @@ pub fn get_indexes(conn: &Connection, table_name: &str) -> Result<Vec<IndexInfo>
                 sql,
             })
         })?
-        .map(|r| r.map_err(|e| anyhow::Error::from(e)))
+        .map(|r| r.map_err(anyhow::Error::from))
         .collect();
 
     indexes
@@ -165,10 +169,8 @@ pub fn get_foreign_keys(conn: &Connection, table_name: &str) -> Result<Vec<Forei
                 on_delete: row.get(6)?,
             })
         })?
-        .map(|r| r.map_err(|e| anyhow::Error::from(e)))
+        .map(|r| r.map_err(anyhow::Error::from))
         .collect();
 
     fks
 }
-
-

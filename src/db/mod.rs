@@ -8,9 +8,7 @@ use std::path::Path;
 use thiserror::Error;
 
 pub use query::update_cell;
-pub use schema::{
-    get_columns, get_foreign_keys, get_indexes, get_table_info, get_tables,
-};
+pub use schema::{get_columns, get_foreign_keys, get_indexes, get_table_info, get_tables};
 
 #[derive(Debug, Error)]
 pub enum DatabaseError {
@@ -48,10 +46,12 @@ impl Database {
             .with_context(|| format!("Failed to open database: {}", path_str))
             .map_err(|e| {
                 // Provide more helpful error messages
-                if e.to_string().contains("not a database") || e.to_string().contains("file is encrypted") {
-                    DatabaseError::InvalidFile(path_str.clone()).into()
+                if e.to_string().contains("not a database")
+                    || e.to_string().contains("file is encrypted")
+                {
+                    anyhow::Error::from(DatabaseError::InvalidFile(path_str.clone()))
                 } else {
-                    anyhow::Error::from(e)
+                    e
                 }
             })?;
 
@@ -70,6 +70,4 @@ impl Database {
     pub fn into_connection(self) -> Connection {
         self.conn
     }
-
 }
-

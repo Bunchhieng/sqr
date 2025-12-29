@@ -114,9 +114,11 @@ impl App {
         let sql_editor_active = self.state.show_sql_editor && self.state.focus == Focus::Content;
         // Check if full editor is active - it should capture all input
         let full_editor_active = self.state.full_edit_mode;
-        
+
         match event.code {
-            KeyCode::Char('q') if event.modifiers.is_empty() && !sql_editor_active && !full_editor_active => {
+            KeyCode::Char('q')
+                if event.modifiers.is_empty() && !sql_editor_active && !full_editor_active =>
+            {
                 self.should_quit = true;
             }
             KeyCode::Tab => {
@@ -143,7 +145,8 @@ impl App {
                                                 let full_value = val.display(10000);
                                                 self.state.edit_buffer = full_value.clone();
                                                 self.state.edit_cursor_pos = full_value.len();
-                                                self.state.full_edit_mode = full_value.len() > 50 || full_value.contains('\n');
+                                                self.state.full_edit_mode = full_value.len() > 50
+                                                    || full_value.contains('\n');
                                             }
                                         }
                                     }
@@ -169,7 +172,8 @@ impl App {
                                                 let full_value = val.display(10000);
                                                 self.state.edit_buffer = full_value.clone();
                                                 self.state.edit_cursor_pos = full_value.len();
-                                                self.state.full_edit_mode = full_value.len() > 50 || full_value.contains('\n');
+                                                self.state.full_edit_mode = full_value.len() > 50
+                                                    || full_value.contains('\n');
                                             }
                                         }
                                     }
@@ -218,12 +222,16 @@ impl App {
                             self.load_table(table_name);
                         }
                     }
-                } else if self.state.focus == Focus::Content && self.state.view_mode == ViewMode::Rows {
+                } else if self.state.focus == Focus::Content
+                    && self.state.view_mode == ViewMode::Rows
+                {
                     // Enter edit mode for selected cell
                     self.enter_edit_mode();
                 }
             }
-            KeyCode::Char('d') if event.modifiers.is_empty() && !sql_editor_active && !full_editor_active => {
+            KeyCode::Char('d')
+                if event.modifiers.is_empty() && !sql_editor_active && !full_editor_active =>
+            {
                 // Open diagram from anywhere
                 self.state.focus = Focus::Content;
                 self.state.view_mode = ViewMode::Diagram;
@@ -233,10 +241,12 @@ impl App {
                     let _ = self.worker.send(WorkerMessage::LoadDiagram);
                 }
             }
-            KeyCode::Char('s') if event.modifiers.is_empty() && !sql_editor_active && !full_editor_active => {
+            KeyCode::Char('s')
+                if event.modifiers.is_empty() && !sql_editor_active && !full_editor_active =>
+            {
                 if self.state.focus == Focus::Content {
                     self.state.toggle_view_mode();
-                    
+
                     match self.state.view_mode {
                         ViewMode::Schema => {
                             if let Some(table_name) = self.state.current_table.as_ref() {
@@ -259,12 +269,16 @@ impl App {
                     }
                 }
             }
-            KeyCode::Char('/') if event.modifiers.is_empty() && !sql_editor_active && !full_editor_active => {
+            KeyCode::Char('/')
+                if event.modifiers.is_empty() && !sql_editor_active && !full_editor_active =>
+            {
                 if self.state.focus == Focus::Tables {
                     self.state.table_filter.clear();
                 }
             }
-            KeyCode::Char('c') if event.modifiers.contains(KeyModifiers::CONTROL) && sql_editor_active => {
+            KeyCode::Char('c')
+                if event.modifiers.contains(KeyModifiers::CONTROL) && sql_editor_active =>
+            {
                 // Ctrl+C in SQL editor: Clear query results and reset to table view
                 self.state.query_result = None;
                 self.state.query_error = None;
@@ -276,7 +290,9 @@ impl App {
                     }
                 }
             }
-            KeyCode::Char('e') if event.modifiers.is_empty() && !sql_editor_active && !full_editor_active => {
+            KeyCode::Char('e')
+                if event.modifiers.is_empty() && !sql_editor_active && !full_editor_active =>
+            {
                 if self.state.edit_mode {
                     // Exit edit mode
                     self.state.edit_mode = false;
@@ -441,19 +457,16 @@ impl App {
                     }
                 } else if self.state.edit_mode {
                     let pos = self.state.edit_cursor_pos.min(self.state.edit_buffer.len());
-                    
+
                     match event.code {
                         KeyCode::Char(c) => {
                             self.state.query_error = None;
-                            
+
                             if event.modifiers.contains(KeyModifiers::CONTROL) {
-                                match c {
-                                    'e' => {
-                                        self.state.full_edit_mode = true;
-                                        self.state.focus = Focus::Content;
-                                        self.state.edit_cursor_pos = self.state.edit_buffer.len();
-                                    }
-                                    _ => {}
+                                if c == 'e' {
+                                    self.state.full_edit_mode = true;
+                                    self.state.focus = Focus::Content;
+                                    self.state.edit_cursor_pos = self.state.edit_buffer.len();
                                 }
                             } else {
                                 self.state.edit_buffer.insert(pos, c);
@@ -573,19 +586,20 @@ impl App {
     /// Enter edit mode for the first cell
     fn enter_edit_mode(&mut self) {
         if let Some(result) = &self.state.table_rows {
-                if !result.rows.is_empty() && !result.columns.is_empty() {
-                    self.state.edit_mode = true;
-                    self.state.editing_row = Some(0);
-                    self.state.editing_col = Some(0);
-                    if let Some(row) = result.rows.get(0) {
-                        if let Some(val) = row.get(0) {
-                            let full_value = val.display(10000);
-                            self.state.edit_buffer = full_value.clone();
-                            self.state.edit_cursor_pos = full_value.len();
-                            self.state.full_edit_mode = full_value.len() > 50 || full_value.contains('\n');
-                        }
+            if !result.rows.is_empty() && !result.columns.is_empty() {
+                self.state.edit_mode = true;
+                self.state.editing_row = Some(0);
+                self.state.editing_col = Some(0);
+                if let Some(row) = result.rows.first() {
+                    if let Some(val) = row.first() {
+                        let full_value = val.display(10000);
+                        self.state.edit_buffer = full_value.clone();
+                        self.state.edit_cursor_pos = full_value.len();
+                        self.state.full_edit_mode =
+                            full_value.len() > 50 || full_value.contains('\n');
                     }
                 }
+            }
         }
     }
 
@@ -593,7 +607,7 @@ impl App {
     fn save_edited_cell(&mut self) {
         // Clear any previous errors
         self.state.query_error = None;
-        
+
         if let (Some(row_idx), Some(col_idx), Some(table_name)) = (
             self.state.editing_row,
             self.state.editing_col,
@@ -604,14 +618,15 @@ impl App {
                     let column_name = result.columns[col_idx].clone();
                     let new_value = self.state.edit_buffer.clone();
                     let actual_row_index = self.state.current_page * self.state.page_size + row_idx;
-                    
+
                     if let Err(e) = self.worker.send(WorkerMessage::UpdateCell {
                         table_name: table_name.clone(),
                         row_index: actual_row_index,
                         column_name,
                         new_value,
                     }) {
-                        self.state.query_error = Some(format!("Failed to send update request: {}", e));
+                        self.state.query_error =
+                            Some(format!("Failed to send update request: {}", e));
                     }
                 } else {
                     self.state.query_error = Some("Invalid column index".to_string());
@@ -620,15 +635,15 @@ impl App {
                 self.state.query_error = Some("No table data available".to_string());
             }
         } else {
-            self.state.query_error = Some("Invalid edit state: missing row, column, or table name".to_string());
+            self.state.query_error =
+                Some("Invalid edit state: missing row, column, or table name".to_string());
         }
     }
 
     /// Shutdown the application
     pub fn shutdown(self) -> Result<(), io::Error> {
-        self.worker.shutdown().map_err(|e| {
-            io::Error::new(io::ErrorKind::Other, format!("Failed to shutdown worker: {}", e))
-        })
+        self.worker
+            .shutdown()
+            .map_err(|e| io::Error::other(format!("Failed to shutdown worker: {}", e)))
     }
 }
-

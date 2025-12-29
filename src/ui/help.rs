@@ -6,6 +6,7 @@ use ratatui::{
     Frame,
 };
 
+#[allow(clippy::vec_init_then_push)]
 pub fn render_help(frame: &mut Frame, area: Rect) {
     // Create a centered modal
     let popup_area = centered_rect(70, 80, area);
@@ -124,4 +125,3 @@ fn centered_rect(percent_x: u16, percent_y: u16, r: Rect) -> Rect {
         ])
         .split(popup_layout[1])[1]
 }
-

@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use crate::types::{ColumnInfo, ForeignKeyInfo};
+use serde::{Deserialize, Serialize};
 
 /// Table data for ER diagram visualization
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -14,4 +14,3 @@ pub struct DiagramTable {
 pub struct DiagramData {
     pub tables: Vec<DiagramTable>,
 }
-

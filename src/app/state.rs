@@ -135,7 +135,8 @@ impl AppState {
     pub fn move_up(&mut self) {
         let filtered_len = self.filtered_tables().len();
         if filtered_len > 0 {
-            self.selected_table_index = (self.selected_table_index + filtered_len - 1) % filtered_len;
+            self.selected_table_index =
+                (self.selected_table_index + filtered_len - 1) % filtered_len;
         }
     }
 
@@ -187,4 +188,3 @@ impl AppState {
         }
     }
 }
-

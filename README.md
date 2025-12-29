@@ -55,5 +55,5 @@ sqr export --db database.db --query "SELECT * FROM users" --format json --out us
 
 ## License
 
-MIT OR Apache-2.0
+MIT
 

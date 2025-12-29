@@ -1,0 +1,21 @@
+# Rust
+/target/
+# Note: Cargo.lock is committed for binaries to ensure reproducible builds
+
+# Test databases (keep the scripts, ignore the generated files)
+test_data/*.db
+test_data/*.db-journal
+test_data/*.db-wal
+test_data/*.db-shm
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
